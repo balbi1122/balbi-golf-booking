@@ -1,0 +1,34 @@
+name: Deploy Backend to Railway
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "backend_api/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend_api
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | sh && echo "$HOME/.railway/bin" >> $GITHUB_PATH
+      - name: Login to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway login --token "$RAILWAY_TOKEN"
+      - name: Link project/env
+        env:
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_ENVIRONMENT: ${{ secrets.RAILWAY_ENVIRONMENT }}
+        run: railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT"
+      - name: Select service
+        env:
+          BACKEND_SERVICE_NAME: ${{ secrets.BACKEND_SERVICE_NAME }}
+        run: railway service "$BACKEND_SERVICE_NAME"
+      - name: Deploy
+        run: railway up
