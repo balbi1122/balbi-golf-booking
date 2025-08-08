@@ -15,20 +15,39 @@ jobs:
         working-directory: frontend_app
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Railway CLI
         run: curl -fsSL https://railway.app/install.sh | sh && echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: Debug CLI
+        run: |
+          railway --version || true
+          which railway || true
+
       - name: Login to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: railway login --token "$RAILWAY_TOKEN"
+
       - name: Link project/env
         env:
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           RAILWAY_ENVIRONMENT: ${{ secrets.RAILWAY_ENVIRONMENT }}
         run: railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT"
-      - name: Select service
+
+      - name: Debug envs & services
+        run: |
+          echo "=== Environments ==="
+          railway environments || true
+          echo "=== Services ==="
+          railway services || true
+
+      - name: Ensure service exists
         env:
           FRONTEND_SERVICE_NAME: ${{ secrets.FRONTEND_SERVICE_NAME }}
-        run: railway service "$FRONTEND_SERVICE_NAME"
+        run: |
+          railway service "$FRONTEND_SERVICE_NAME" || railway service create "$FRONTEND_SERVICE_NAME"
+          railway service "$FRONTEND_SERVICE_NAME"
+
       - name: Deploy
         run: railway up
