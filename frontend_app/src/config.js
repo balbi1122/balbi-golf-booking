@@ -11,3 +11,10 @@ export const ADMIN_HEADER = ADMIN_API_KEY
 // Used by the homepage
 export const LOCATION_NAME = 'Oceanview Driving Range, Half Moon Bay';
 export const GOOGLE_MAPS_LINK = 'https://maps.google.com/?q=Oceanview+Driving+Range+Half+Moon+Bay';
+
+// Booking prices (card prices). Cash discount is handled server-side.
+export const PRICES = [
+  { minutes: 30, price: 90 },
+  { minutes: 45, price: 135 },
+  { minutes: 60, price: 180 }
+];
